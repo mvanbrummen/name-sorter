@@ -32,4 +32,5 @@ sort-names c:\names.txt
 BAKER, THEODORE
 KENT, MADISON
 SMITH, ANDREW
+SMITH, FREDRICK
 ```
