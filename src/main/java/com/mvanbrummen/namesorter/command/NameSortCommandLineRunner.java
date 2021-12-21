@@ -8,12 +8,14 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class NameSortCommandLineRunner implements CommandLineRunner {
     private final NameSortService nameSortService;
 
+    static final String OUTPUT_FILE_NAME = "names-sorted.txt";
     static final String USAGE_STRING = """
             usage: name-sorter <path-to-input-txt>
             """;
@@ -29,16 +31,26 @@ public class NameSortCommandLineRunner implements CommandLineRunner {
         var inputFile = Paths.get(filePath);
 
         var contents = Files.readAllLines(inputFile);
+        var names = parseNames(contents);
 
-        var names = contents.stream()
+        var sortedNames = nameSortService.sortNames(names);
+
+        var newPath = Paths.get(OUTPUT_FILE_NAME);
+        Files.writeString(newPath, namesToString(sortedNames));
+    }
+
+    static List<Name> parseNames(final List<String> contents) {
+        return contents.stream()
                 .map(i -> {
                     var parts = i.split(", ");
                     return new Name(parts[1], parts[0]);
                 })
                 .toList();
+    }
 
-        var sortedNames = nameSortService.sortNames(names);
-
-        System.out.println(sortedNames);
+    static String namesToString(final List<Name> names) {
+        return String.join("\n", names.stream()
+                .map(i -> i.lastName() + ", " + i.firstName())
+                .toList());
     }
 }
